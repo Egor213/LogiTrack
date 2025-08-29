@@ -13,9 +13,11 @@ import (
 
 type (
 	Config struct {
-		App `yaml:"app"`
-		Log `yaml:"log"`
-		PG  `yaml:"postgres"`
+		App        `yaml:"app"`
+		Log        `yaml:"log"`
+		PG         `yaml:"postgres"`
+		GRPC       `yaml:"grpc"`
+		Prometheus `yaml:"prometheus"`
 	}
 
 	App struct {
@@ -30,6 +32,14 @@ type (
 	PG struct {
 		MaxPoolSize int    `env-required:"true" env:"MAX_POOL_SIZE" yaml:"max_pool_size"`
 		URL         string `env-required:"true" env:"PG_URL"`
+	}
+
+	Prometheus struct {
+		Port string `env-required:"true" yaml:"port" env:"PROMETHEUS_PORT"`
+	}
+
+	GRPC struct {
+		Port string `env-required:"true" yaml:"port" env:"GRPC_PORT"`
 	}
 )
 

@@ -7,3 +7,9 @@ log:
 
 postgres:
   max_pool_size: 12
+
+grpc:
+  port: 3000
+
+prometheus:
+  port: 9000
