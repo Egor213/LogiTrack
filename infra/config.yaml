@@ -1,0 +1,9 @@
+app:
+  name: 'logi-track'
+  version: '1.0.0'
+
+log:
+  level: "debug"
+
+postgres:
+  max_pool_size: 12

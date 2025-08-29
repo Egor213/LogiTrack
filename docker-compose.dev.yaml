@@ -1,0 +1,48 @@
+
+
+
+name: go_add
+
+
+services:
+  db:
+    environment:
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: app
+    image: postgres:16-alpine
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    container_name: psql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "80:80"
+    depends_on:
+      - db
+
+    # app:
+    #   container_name: golang_app
+    #   build:
+    #     context: .
+    #     dockerfile: Dockerfile.app
+    #   restart: unless-stopped
+    #   depends_on:
+    #     - db
+    #   ports:
+    #     - "8080:8080"
+
+
+volumes:
+  db_data:
+    driver: local
