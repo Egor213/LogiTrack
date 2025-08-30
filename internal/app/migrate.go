@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"os"
 
 	errorsUtils "github.com/Egor213/LogiTrack/pkg/errors"
 
@@ -28,8 +29,14 @@ func Migrate(pgUrl string) {
 		mgrt         *migrate.Migrate
 	)
 
+	migrationsPath := "migrations"
+
+	if _, err := os.Stat(migrationsPath); os.IsNotExist(err) {
+		log.Fatalf("migrations directory %q does not exist", migrationsPath)
+	}
+
 	for connAttempts > 0 {
-		mgrt, err = migrate.New("file://migrations", pgUrl)
+		mgrt, err = migrate.New("file://"+migrationsPath, pgUrl)
 		if err == nil {
 			break
 		}

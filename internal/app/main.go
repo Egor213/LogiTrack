@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"os"
 	"os/signal"
 	"syscall"
@@ -33,7 +34,7 @@ func Run() {
 	log.Info("Logger has been set up")
 
 	// Migrations
-	Migrate(cfg.PG.URL)
+	// Migrate(cfg.PG.URL)
 
 	// DB connecting
 	log.Info("Connecting to DB")
@@ -55,7 +56,7 @@ func Run() {
 
 	// gRPC Server
 	log.Infof("Starting gRPC server...")
-	log.Debugf("Server port: %s", cfg.GRPC.Port)
+	log.Debugf("gRPC server port: %s", cfg.GRPC.Port)
 	registerFun := grpcv1.RegisterServices(services)
 	grpcServer, err := grpcserver.New(registerFun, grpcserver.WithPort(cfg.GRPC.Port))
 	if err != nil {
@@ -64,7 +65,7 @@ func Run() {
 
 	// Prometheus server
 	log.Infof("Starting metrics server...")
-	log.Debugf("Server port: %s", cfg.Prometheus.Port)
+	log.Debugf("Metrics server port: %s", cfg.Prometheus.Port)
 	metricsHandler := echo.New()
 	metrics.ConfigureRouter(metricsHandler)
 	metricsServer := httpserver.New(metricsHandler, httpserver.Port(cfg.Prometheus.Port))
@@ -72,13 +73,12 @@ func Run() {
 	log.Info("Configuring graceful shutdown...")
 
 	// Waiting signal
-	log.Info("Configuring graceful shutdown")
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt, syscall.SIGTERM)
 
 	select {
 	case s := <-interrupt:
-		log.Info("app - Run - signal: " + s.String())
+		log.Info(errorsUtils.WrapPathErr(errors.New(s.String())))
 	case err := <-metricsServer.Notify():
 		log.Info(errorsUtils.WrapPathErr(err))
 	case err := <-grpcServer.Notify():
