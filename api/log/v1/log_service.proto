@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package log;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "internal/controller/grpc/v1/loggrpc_gen;loggrpc";
+
+service LogService {
+  rpc SendLog(LogEntry) returns (SendLogResponse);
+}
+
+enum LogLevel {
+  LOG_LEVEL_UNSPECIFIED = 0;
+  INFO = 1;
+  WARN = 2;
+  ERROR = 3;
+}
+
+enum SendStatus {
+  STATUS_OK = 0;
+  STATUS_FAILED = 1;
+}
+
+message LogEntry {
+  string service = 1;
+  LogLevel level = 2;
+  string message = 3;
+  google.protobuf.Timestamp timestamp = 4;
+}
+
+message SendLogResponse {
+  string log_id = 1;
+  SendStatus status = 2;
+}
