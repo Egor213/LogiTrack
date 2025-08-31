@@ -34,7 +34,7 @@ func Run() {
 	log.Info("Logger has been set up")
 
 	// Migrations
-	// Migrate(cfg.PG.URL)
+	Migrate(cfg.PG.URL)
 
 	// DB connecting
 	log.Info("Connecting to DB")
@@ -49,15 +49,17 @@ func Run() {
 	repositories := repo.NewRepositories(pg)
 
 	// Services
+	metricsCnt := metrics.New()
 	deps := service.ServicesDependencies{
-		Repos: repositories,
+		Repos:    repositories,
+		Counters: metricsCnt,
 	}
 	services := service.NewServices(deps)
 
 	// gRPC Server
 	log.Infof("Starting gRPC server...")
 	log.Debugf("gRPC server port: %s", cfg.GRPC.Port)
-	registerFun := grpcv1.RegisterServices(services)
+	registerFun := grpcv1.RegisterServices(services, metricsCnt)
 	grpcServer, err := grpcserver.New(registerFun, grpcserver.WithPort(cfg.GRPC.Port))
 	if err != nil {
 		log.Fatal(errorsUtils.WrapPathErr(err))

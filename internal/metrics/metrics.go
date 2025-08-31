@@ -39,11 +39,6 @@ func New() *Counters {
 			"Количество логов, принятых gRPC",
 			[]string{"service", "level"},
 		),
-		LogsPublished: NewPrometheusCounter(
-			"logs_published_total",
-			"Количество логов, отправленных в Kafka",
-			[]string{"service", "level"},
-		),
 		GrpcRequests: NewPrometheusCounter(
 			"grpc_requests_total",
 			"Количество gRPC запросов",
