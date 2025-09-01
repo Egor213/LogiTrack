@@ -2,12 +2,10 @@ package service
 
 import (
 	"context"
-	"errors"
 
 	"github.com/Egor213/LogiTrack/internal/domain"
 	"github.com/Egor213/LogiTrack/internal/metrics"
 	"github.com/Egor213/LogiTrack/internal/repo"
-	"github.com/Egor213/LogiTrack/internal/repo/repoerrs"
 	errorsUtils "github.com/Egor213/LogiTrack/pkg/errors"
 )
 
@@ -30,9 +28,6 @@ func (s *LogService) GetLogs() int {
 func (s *LogService) SendLog(ctx context.Context, logObj *domain.LogEntry) (int, error) {
 	id, err := s.logRepo.SendLog(ctx, logObj)
 	if err != nil {
-		if errors.Is(err, repoerrs.ErrAlreadyExists) {
-			return 0, ErrLogAlreadyExists
-		}
 		return 0, errorsUtils.WrapPathErr(ErrCannotCreateLog)
 	}
 	return id, nil

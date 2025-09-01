@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/Egor213/LogiTrack/internal/domain"
-	"github.com/Egor213/LogiTrack/internal/repo/repoerrs"
 	"github.com/Egor213/LogiTrack/internal/repo/repotypes"
 	errorsUtils "github.com/Egor213/LogiTrack/pkg/errors"
 	"github.com/Egor213/LogiTrack/pkg/postgres"
@@ -32,9 +31,6 @@ func (r *LogRepo) SendLog(ctx context.Context, logObj *domain.LogEntry) (int, er
 	var id int
 	err := r.CtxGetter.DefaultTrOrDB(ctx, r.Pool).QueryRow(ctx, sql, args...).Scan(&id)
 	if err != nil {
-		if errorsUtils.IsUniqueViolation(err) {
-			return 0, repoerrs.ErrAlreadyExists
-		}
 		return 0, errorsUtils.WrapPathErr(err)
 	}
 	return id, nil
