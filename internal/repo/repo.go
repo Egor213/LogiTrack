@@ -10,7 +10,7 @@ import (
 )
 
 type Log interface {
-	GetLogs(ctx context.Context, filter repotypes.LogFilterInput) ([]*domain.LogEntry, error)
+	GetLogs(ctx context.Context, filter repotypes.LogFilter) ([]domain.LogEntry, error)
 	SendLog(ctx context.Context, logObj *domain.LogEntry) (int, error)
 }
 

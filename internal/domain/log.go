@@ -3,8 +3,9 @@ package domain
 import "time"
 
 type LogEntry struct {
-	Service   string
-	Level     string
-	Message   string
-	Timestamp time.Time
+	Id        string    `db:"id"`
+	Service   string    `db:"service"`
+	Level     string    `db:"level"`
+	Message   string    `db:"message"`
+	Timestamp time.Time `db:"created_at"`
 }

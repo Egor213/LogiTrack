@@ -9,6 +9,7 @@ import (
 	"github.com/Egor213/LogiTrack/internal/controller/grpc/validators"
 	"github.com/Egor213/LogiTrack/internal/metrics"
 	"github.com/Egor213/LogiTrack/internal/service"
+	"github.com/labstack/gommon/log"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -41,20 +42,29 @@ func (c *LogController) SendLog(ctx context.Context, logRequest *loggrpc.SendLog
 	id, err := c.logService.SendLog(ctx, logEntry)
 	if err != nil {
 		c.counters.GrpcRequests.Inc("SendLog", "failed")
-		switch {
-		default:
-			logginghelper.LogError(logEntry, err)
-			return nil, status.Errorf(codes.Unknown, "unknown error")
-		}
+		logginghelper.LogError(logEntry, err)
+		return nil, status.Errorf(codes.Unknown, "unknown error")
 	}
 
 	logginghelper.LogSaved(logEntry, id)
 
-	c.counters.LogsReceived.Inc(logEntry.Service, logEntry.Level)
 	c.counters.GrpcRequests.Inc("SendLog", "ok")
 
 	return &loggrpc.SendLogResponse{
 		LogId:  fmt.Sprint(id),
 		Status: loggrpc.SendStatus_STATUS_OK,
+	}, nil
+}
+
+func (c *LogController) GetLogs(ctx context.Context, req *loggrpc.GetLogsRequest) (*loggrpc.GetLogsResponse, error) {
+	lf := NewLogFilterFromRequest(req)
+	logs, _ := c.logService.GetLogs(ctx, *lf)
+	log.Info(logs)
+	var temp []*loggrpc.SendLogRequest
+	for _, val := range logs {
+		temp = append(temp, ToSendLogRequest(val))
+	}
+	return &loggrpc.GetLogsResponse{
+		Logs: temp,
 	}, nil
 }

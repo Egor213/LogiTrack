@@ -7,8 +7,7 @@ type Counter interface {
 }
 
 type Counters struct {
-	LogsReceived  Counter
-	LogsPublished Counter
+	LogsReceived Counter
 
 	GrpcRequests Counter
 }
