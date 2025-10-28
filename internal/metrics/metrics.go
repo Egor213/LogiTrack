@@ -45,3 +45,29 @@ func New() *Counters {
 		),
 	}
 }
+
+func NewTestCounters() *Counters {
+	reg := prometheus.NewRegistry()
+
+	logsReceived := &PrometheusCounter{
+		counter: prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "logs_received_total",
+			Help: "Количество логов, принятых gRPC",
+		}, []string{"service", "level"}),
+	}
+
+	grpcRequests := &PrometheusCounter{
+		prometheus.NewCounterVec(prometheus.CounterOpts{
+			Name: "grpc_requests_total",
+			Help: "Количество gRPC запросов",
+		}, []string{"method", "status"}),
+	}
+
+	reg.MustRegister(logsReceived.counter)
+	reg.MustRegister(grpcRequests.counter)
+
+	return &Counters{
+		LogsReceived: logsReceived,
+		GrpcRequests: grpcRequests,
+	}
+}
