@@ -9,7 +9,7 @@ import (
 	"github.com/Egor213/LogiTrack/internal/controller/grpc/validators"
 	"github.com/Egor213/LogiTrack/internal/metrics"
 	"github.com/Egor213/LogiTrack/internal/service"
-	"github.com/labstack/gommon/log"
+	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -58,7 +58,12 @@ func (c *LogController) SendLog(ctx context.Context, logRequest *loggrpc.SendLog
 
 func (c *LogController) GetLogs(ctx context.Context, req *loggrpc.GetLogsRequest) (*loggrpc.GetLogsResponse, error) {
 	lf := NewLogFilterFromRequest(req)
-	logs, _ := c.logService.GetLogs(ctx, *lf)
+	logs, err := c.logService.GetLogs(ctx, *lf)
+	if err != nil {
+		c.counters.GrpcRequests.Inc("SendLog", "failed")
+		log.Debug(err.Error())
+		return nil, status.Errorf(codes.Unknown, "unknown error")
+	}
 	log.Info(logs)
 	var temp []*loggrpc.SendLogRequest
 	for _, val := range logs {
@@ -67,4 +72,13 @@ func (c *LogController) GetLogs(ctx context.Context, req *loggrpc.GetLogsRequest
 	return &loggrpc.GetLogsResponse{
 		Logs: temp,
 	}, nil
+}
+
+func (c *LogController) GetStats(ctx context.Context, req *loggrpc.GetStatsRequest) (*loggrpc.GetStatsResponse, error) {
+	stats, err := c.logService.GetStats(ctx, req.Service, req.From.AsTime(), req.To.AsTime())
+	if err != nil {
+		log.Debug(err.Error())
+		return nil, status.Errorf(codes.Unknown, "unknown error")
+	}
+	return ServiceStatsToGrpc(stats), nil
 }

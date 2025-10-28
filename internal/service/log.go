@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/Egor213/LogiTrack/internal/domain"
 	"github.com/Egor213/LogiTrack/internal/metrics"
@@ -41,6 +42,10 @@ func (s *LogService) SendLog(ctx context.Context, logObj *domain.LogEntry) (int,
 	return id, nil
 }
 
-func (s *LogService) GetStats() int {
-	return 1
+func (s *LogService) GetStats(ctx context.Context, service string, from, to time.Time) (domain.ServiceStats, error) {
+	stats, err := s.logRepo.GetStatsByService(ctx, service, from, to)
+	if err != nil {
+		return domain.ServiceStats{}, errorsUtils.WrapPathErr(ErrCannotCreateLog)
+	}
+	return stats, nil
 }

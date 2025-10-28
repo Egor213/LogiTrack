@@ -2,6 +2,7 @@ package pgdb
 
 import (
 	"context"
+	"time"
 
 	"github.com/Egor213/LogiTrack/internal/domain"
 	"github.com/Egor213/LogiTrack/internal/repo/repotypes"
@@ -9,7 +10,6 @@ import (
 	"github.com/Egor213/LogiTrack/pkg/postgres"
 	sq "github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
-	"github.com/labstack/gommon/log"
 )
 
 type LogRepo struct {
@@ -22,8 +22,7 @@ func NewLogRepo(pg *postgres.Postgres) *LogRepo {
 
 func (r *LogRepo) GetLogs(ctx context.Context, filter repotypes.LogFilter) ([]domain.LogEntry, error) {
 	//TODO Нормально настроить фильтры, чтобы без указания уровня можно было и время корректное сделать
-	conds, limit := BuildLogFilters(filter)
-	log.Info("filter", filter)
+	conds, limit := BuildLogQueryFilters(filter)
 
 	query := r.Builder.
 		Select("id", "service", "level", "message", "created_at").
@@ -35,9 +34,7 @@ func (r *LogRepo) GetLogs(ctx context.Context, filter repotypes.LogFilter) ([]do
 	}
 
 	sql, args, _ := query.ToSql()
-	log.Info(sql)
 	rows, err := r.CtxGetter.DefaultTrOrDB(ctx, r.Pool).Query(ctx, sql, args...)
-	log.Info(rows)
 
 	if err != nil {
 		return []domain.LogEntry{}, errorsUtils.WrapPathErr(err)
@@ -68,4 +65,44 @@ func (r *LogRepo) SendLog(ctx context.Context, logObj *domain.LogEntry) (int, er
 		return 0, errorsUtils.WrapPathErr(err)
 	}
 	return id, nil
+}
+
+func (r *LogRepo) GetStatsByService(ctx context.Context, service string, from, to time.Time) (domain.ServiceStats, error) {
+	conds := BuildServiceStatsQueryFilters(service, from, to)
+	query := r.Builder.
+		Select("level", "COUNT(*) AS count_logs").
+		From("logs")
+
+	if len(conds) > 0 {
+		query = query.Where(sq.And(conds))
+	}
+	query = query.GroupBy("level")
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return domain.ServiceStats{}, errorsUtils.WrapPathErr(err)
+	}
+
+	rows, err := r.CtxGetter.DefaultTrOrDB(ctx, r.Pool).Query(ctx, sql, args...)
+	if err != nil {
+		return domain.ServiceStats{}, errorsUtils.WrapPathErr(err)
+	}
+	defer rows.Close()
+
+	stats := domain.ServiceStats{Service: service}
+
+	for rows.Next() {
+		var ls domain.LevelStats
+		if err := rows.Scan(&ls.Level, &ls.Count); err != nil {
+			return domain.ServiceStats{}, errorsUtils.WrapPathErr(err)
+		}
+		stats.LogsByLevel = append(stats.LogsByLevel, ls)
+		stats.TotalLogs += ls.Count
+	}
+
+	if err := rows.Err(); err != nil {
+		return domain.ServiceStats{}, errorsUtils.WrapPathErr(err)
+	}
+
+	return stats, nil
 }

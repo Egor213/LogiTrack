@@ -62,6 +62,5 @@ message LogLevelCount {
 
 message GetStatsResponse {
   int32 total_logs = 1;
-  int32 total_errors = 2;
   repeated LogLevelCount logs_by_level = 3;
 }

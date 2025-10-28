@@ -475,8 +475,7 @@ func (x *LogLevelCount) GetCount() int32 {
 type GetStatsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	TotalLogs     int32                  `protobuf:"varint,1,opt,name=total_logs,json=totalLogs,proto3" json:"total_logs,omitempty"`
-	TotalErrors   int32                  `protobuf:"varint,2,opt,name=total_errors,json=totalErrors,proto3" json:"total_errors,omitempty"`
-	LogsByLevel   *LogLevelCount         `protobuf:"bytes,3,opt,name=logs_by_level,json=logsByLevel,proto3,oneof" json:"logs_by_level,omitempty"`
+	LogsByLevel   []*LogLevelCount       `protobuf:"bytes,3,rep,name=logs_by_level,json=logsByLevel,proto3" json:"logs_by_level,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -518,14 +517,7 @@ func (x *GetStatsResponse) GetTotalLogs() int32 {
 	return 0
 }
 
-func (x *GetStatsResponse) GetTotalErrors() int32 {
-	if x != nil {
-		return x.TotalErrors
-	}
-	return 0
-}
-
-func (x *GetStatsResponse) GetLogsByLevel() *LogLevelCount {
+func (x *GetStatsResponse) GetLogsByLevel() []*LogLevelCount {
 	if x != nil {
 		return x.LogsByLevel
 	}
@@ -559,13 +551,11 @@ const file_api_log_v1_log_service_proto_rawDesc = "" +
 	"\x02to\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x02to\"J\n" +
 	"\rLogLevelCount\x12#\n" +
 	"\x05level\x18\x01 \x01(\x0e2\r.log.LogLevelR\x05level\x12\x14\n" +
-	"\x05count\x18\x02 \x01(\x05R\x05count\"\xa3\x01\n" +
+	"\x05count\x18\x02 \x01(\x05R\x05count\"i\n" +
 	"\x10GetStatsResponse\x12\x1d\n" +
 	"\n" +
-	"total_logs\x18\x01 \x01(\x05R\ttotalLogs\x12!\n" +
-	"\ftotal_errors\x18\x02 \x01(\x05R\vtotalErrors\x12;\n" +
-	"\rlogs_by_level\x18\x03 \x01(\v2\x12.log.LogLevelCountH\x00R\vlogsByLevel\x88\x01\x01B\x10\n" +
-	"\x0e_logs_by_level*D\n" +
+	"total_logs\x18\x01 \x01(\x05R\ttotalLogs\x126\n" +
+	"\rlogs_by_level\x18\x03 \x03(\v2\x12.log.LogLevelCountR\vlogsByLevel*D\n" +
 	"\bLogLevel\x12\x19\n" +
 	"\x15LOG_LEVEL_UNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04INFO\x10\x01\x12\b\n" +
@@ -637,7 +627,6 @@ func file_api_log_v1_log_service_proto_init() {
 	if File_api_log_v1_log_service_proto != nil {
 		return
 	}
-	file_api_log_v1_log_service_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

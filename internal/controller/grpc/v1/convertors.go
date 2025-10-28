@@ -46,3 +46,18 @@ func ToSendLogRequest(entry domain.LogEntry) *loggrpc.SendLogRequest {
 		Timestamp: timestamppb.New(entry.Timestamp),
 	}
 }
+
+func ServiceStatsToGrpc(stats domain.ServiceStats) *loggrpc.GetStatsResponse {
+	resp := &loggrpc.GetStatsResponse{
+		TotalLogs: int32(stats.TotalLogs),
+	}
+
+	for _, ls := range stats.LogsByLevel {
+		resp.LogsByLevel = append(resp.LogsByLevel, &loggrpc.LogLevelCount{
+			Level: loggrpc.LogLevel(loggrpc.LogLevel_value[ls.Level]),
+			Count: int32(ls.Count),
+		})
+	}
+
+	return resp
+}

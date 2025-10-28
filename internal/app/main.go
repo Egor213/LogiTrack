@@ -88,8 +88,12 @@ func Run() {
 	}
 
 	// Graceful shutdown
+	shutdownApp(grpcServer, metricsServer)
+}
+
+func shutdownApp(grpcServer *grpcserver.Server, metricsServer *httpserver.Server) {
 	log.Info("Shutting down...")
-	err = metricsServer.Shutdown()
+	err := metricsServer.Shutdown()
 	if err != nil {
 		log.Error(errorsUtils.WrapPathErr(err))
 	}

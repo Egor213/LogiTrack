@@ -80,6 +80,10 @@ func New(pgUrl string, opts ...Option) (*Postgres, error) {
 		time.Sleep(pg.connTimeout)
 	}
 
+	// Походу еще это надо заюзать, но https://github.com/avito-tech/go-transaction-manager/blob/main/drivers/pgxv5/example_test.go
+	// trManager := manager.Must(trmpgx.NewDefaultFactory(pg.Pool))
+	// pg.trManager
+
 	if err != nil {
 		return nil, errorsUtils.WrapPathErr(err)
 	}
