@@ -5,7 +5,7 @@ name: go_add
 
 
 services:
-  db:
+  db_logTrack:
     environment:
       POSTGRES_PORT: 5432
       POSTGRES_USER: admin
@@ -13,23 +13,23 @@ services:
       POSTGRES_DB: app
     image: postgres:16-alpine
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_data_logTrack:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "5433:5432"
     restart: unless-stopped
-    container_name: psql
+    container_name: psql_logTrack
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin
-    restart: always
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    ports:
-      - "80:80"
-    depends_on:
-      - db
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   restart: always
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: admin@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: admin
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - db
 
   prometheus:
     image: prom/prometheus:v2.48.0
@@ -52,5 +52,5 @@ services:
 
 
 volumes:
-  db_data:
+  db_data_logTrack:
     driver: local

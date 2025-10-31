@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/Egor213/LogiTrack/internal/broker"
 	"github.com/Egor213/LogiTrack/internal/domain"
 	"github.com/Egor213/LogiTrack/internal/metrics"
 	"github.com/Egor213/LogiTrack/internal/repo"
@@ -21,12 +22,13 @@ type Services struct {
 }
 
 type ServicesDependencies struct {
-	Repos    *repo.Repositories
-	Counters *metrics.Counters
+	Repos          *repo.Repositories
+	Counters       *metrics.Counters
+	BrokerProducer broker.Producer
 }
 
 func NewServices(deps ServicesDependencies) *Services {
 	return &Services{
-		Log: NewLogService(deps.Repos.Log, deps.Counters),
+		Log: NewLogService(deps.Repos.Log, deps.Counters, deps.BrokerProducer),
 	}
 }

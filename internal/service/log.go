@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"time"
 
+	"github.com/Egor213/LogiTrack/internal/broker"
 	"github.com/Egor213/LogiTrack/internal/domain"
 	"github.com/Egor213/LogiTrack/internal/metrics"
 	"github.com/Egor213/LogiTrack/internal/repo"
@@ -13,14 +15,16 @@ import (
 )
 
 type LogService struct {
-	logRepo  repo.Log
-	counters *metrics.Counters
+	logRepo        repo.Log
+	counters       *metrics.Counters
+	brokerProducer broker.Producer
 }
 
-func NewLogService(lr repo.Log, cnt *metrics.Counters) *LogService {
+func NewLogService(lr repo.Log, cnt *metrics.Counters, p broker.Producer) *LogService {
 	return &LogService{
-		logRepo:  lr,
-		counters: cnt,
+		logRepo:        lr,
+		counters:       cnt,
+		brokerProducer: p,
 	}
 }
 
@@ -34,6 +38,10 @@ func (s *LogService) GetLogs(ctx context.Context, lf repotypes.LogFilter) ([]dom
 }
 
 func (s *LogService) SendLog(ctx context.Context, logObj *domain.LogEntry) (int, error) {
+	s.brokerProducer.SendMessage(
+		ctx,
+		[]byte(fmt.Sprintf("service=%s, level=%s, Message=%s", logObj.Service, logObj.Level, logObj.Message)),
+	)
 	s.counters.LogsReceived.Inc(logObj.Service, logObj.Level)
 	id, err := s.logRepo.SendLog(ctx, logObj)
 	if err != nil {

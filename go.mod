@@ -6,7 +6,6 @@ require (
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/avito-tech/go-transaction-manager/drivers/pgxv5/v2 v2.0.1
 	github.com/golang-migrate/migrate/v4 v4.19.0
-	github.com/golang/mock v1.6.0
 	github.com/ilyakaznacheev/cleanenv v1.5.0
 	github.com/jackc/pgx/v5 v5.7.5
 	github.com/joho/godotenv v1.5.1
@@ -14,6 +13,7 @@ require (
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/labstack/gommon v0.4.2
 	github.com/prometheus/client_golang v1.22.0
+	github.com/segmentio/kafka-go v0.4.49
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/mock v0.6.0
@@ -32,12 +32,14 @@ require (
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761 // indirect
 	github.com/jackc/puddle/v2 v2.2.2 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
 	github.com/lib/pq v1.10.9 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/pierrec/lz4/v4 v4.1.16 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.63.0 // indirect
