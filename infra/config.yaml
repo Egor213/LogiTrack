@@ -13,3 +13,9 @@ grpc:
 
 prometheus:
   port: 9000
+
+
+broker:
+  brokers_address:
+    - "localhost:9092"
+  topic: "notifications"

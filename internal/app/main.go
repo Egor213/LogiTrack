@@ -6,7 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	kafkabroker "github.com/Egor213/LogiTrack/internal/broker/kafka"
+	dummybroker "github.com/Egor213/LogiTrack/internal/broker/dummy"
 	"github.com/Egor213/LogiTrack/internal/config"
 	grpcv1 "github.com/Egor213/LogiTrack/internal/controller/grpc/v1"
 	"github.com/Egor213/LogiTrack/internal/metrics"
@@ -50,11 +50,11 @@ func Run() {
 	repositories := repo.NewRepositories(pg)
 
 	// Producer
-	brokerProducer := kafkabroker.NewProducer(kafkabroker.ProducerConfig{
-		Brokers: []string{"localhost:9092"},
-		Topic:   "notifications",
-	})
-	// brokerProducer := dummybroker.NewProducer()
+	// brokerProducer := kafkabroker.NewProducer(kafkabroker.ProducerConfig{
+	// 	Brokers: []string{"localhost:9092"},
+	// 	Topic:   "notifications",
+	// })
+	brokerProducer := dummybroker.NewProducer()
 
 	// Services
 	metricsCnt := metrics.New()
