@@ -1,6 +1,7 @@
 package app
 
 import (
+	"context"
 	"errors"
 	"os"
 	"os/signal"
@@ -8,6 +9,7 @@ import (
 
 	dummybroker "github.com/Egor213/LogiTrack/internal/broker/dummy"
 	"github.com/Egor213/LogiTrack/internal/config"
+	grpcrest "github.com/Egor213/LogiTrack/internal/controller/grpc/rest"
 	grpcv1 "github.com/Egor213/LogiTrack/internal/controller/grpc/v1"
 	"github.com/Egor213/LogiTrack/internal/metrics"
 	"github.com/Egor213/LogiTrack/internal/repo"
@@ -17,6 +19,7 @@ import (
 	"github.com/Egor213/LogiTrack/pkg/httpserver"
 	"github.com/Egor213/LogiTrack/pkg/logger"
 	"github.com/Egor213/LogiTrack/pkg/postgres"
+	gw "github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/labstack/echo/v4"
 
 	log "github.com/sirupsen/logrus"
@@ -74,6 +77,16 @@ func Run() {
 		log.Fatal(errorsUtils.WrapPathErr(err))
 	}
 
+	// REST Gateway
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	mux := gw.NewServeMux()
+	err = grpcrest.RegisterServices(ctx, mux, cfg.GRPC.Port)
+	if err != nil {
+		log.Fatal(errorsUtils.WrapPathErr(err))
+	}
+	restServer := httpserver.New(mux, httpserver.Port(cfg.Rest.Port))
+
 	// Prometheus server
 	log.Infof("Starting metrics server...")
 	log.Debugf("Metrics server port: %s", cfg.Prometheus.Port)
@@ -92,18 +105,22 @@ func Run() {
 		log.Info(errorsUtils.WrapPathErr(errors.New(s.String())))
 	case err := <-metricsServer.Notify():
 		log.Info(errorsUtils.WrapPathErr(err))
+	case err := <-restServer.Notify():
+		log.Info(errorsUtils.WrapPathErr(err))
 	case err := <-grpcServer.Notify():
 		log.Info(errorsUtils.WrapPathErr(err))
 	}
 
 	// Graceful shutdown
-	shutdownApp(grpcServer, metricsServer)
+	shutdownApp(grpcServer, metricsServer, restServer)
 }
 
-func shutdownApp(grpcServer *grpcserver.Server, metricsServer *httpserver.Server) {
+func shutdownApp(grpcServer *grpcserver.Server, metricsServer, restServer *httpserver.Server) {
 	log.Info("Shutting down...")
-	err := metricsServer.Shutdown()
-	if err != nil {
+	if err := metricsServer.Shutdown(); err != nil {
+		log.Error(errorsUtils.WrapPathErr(err))
+	}
+	if err := restServer.Shutdown(); err != nil {
 		log.Error(errorsUtils.WrapPathErr(err))
 	}
 	grpcServer.Shutdown()

@@ -3,13 +3,27 @@ syntax = "proto3";
 package log;
 
 import "google/protobuf/timestamp.proto";
+import "google/api/annotations.proto";
 
 option go_package = "/loggrpc_gen;loggrpc";
 
 service LogService {
-  rpc SendLog(SendLogRequest) returns (SendLogResponse);
-  rpc GetLogs(GetLogsRequest) returns (GetLogsResponse);
-  rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+  rpc SendLog(SendLogRequest) returns (SendLogResponse) {
+    option (google.api.http) = {
+      post: "/v1/logs"
+      body: "*"
+    };
+  }
+  rpc GetLogs(GetLogsRequest) returns (GetLogsResponse) {
+    option (google.api.http) = {
+      get: "/v1/logs"
+    };
+  }
+  rpc GetStats(GetStatsRequest) returns (GetStatsResponse) {
+    option (google.api.http) = {
+      get: "/v1/logs/stats"
+    };
+  }
 }
 
 enum LogLevel {

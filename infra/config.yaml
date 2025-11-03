@@ -14,6 +14,8 @@ grpc:
 prometheus:
   port: 9000
 
+rest:
+  port: 8080
 
 broker:
   brokers_address:

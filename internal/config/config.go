@@ -19,6 +19,7 @@ type (
 		GRPC       `yaml:"grpc"`
 		Prometheus `yaml:"prometheus"`
 		Broker     `yaml:"broker"`
+		Rest       `yaml:"rest"`
 	}
 
 	App struct {
@@ -46,6 +47,10 @@ type (
 	Broker struct {
 		BrokersAddr []string `env-required:"true" yaml:"brokers_address" env:"BROKER_ADDRESS"`
 		Topic       string   `env-required:"true" yaml:"topic" env:"BROKER_TOPIC"`
+	}
+
+	Rest struct {
+		Port string `env-required:"true" yaml:"port" env:"REST_PORT"`
 	}
 )
 
