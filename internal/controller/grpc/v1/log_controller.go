@@ -60,7 +60,7 @@ func (c *LogController) GetLogs(ctx context.Context, req *loggrpc.GetLogsRequest
 	lf := NewLogFilterFromRequest(req)
 	logs, err := c.logService.GetLogs(ctx, *lf)
 	if err != nil {
-		c.counters.GrpcRequests.Inc("SendLog", "failed")
+		c.counters.GrpcRequests.Inc("GetLog", "failed")
 		log.Debug(err.Error())
 		return nil, status.Errorf(codes.Unknown, "unknown error")
 	}

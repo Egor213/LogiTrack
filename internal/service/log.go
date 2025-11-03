@@ -11,7 +11,7 @@ import (
 	"github.com/Egor213/LogiTrack/internal/repo"
 	"github.com/Egor213/LogiTrack/internal/repo/repotypes"
 	errorsUtils "github.com/Egor213/LogiTrack/pkg/errors"
-	"github.com/labstack/gommon/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type LogService struct {
@@ -38,10 +38,10 @@ func (s *LogService) GetLogs(ctx context.Context, lf repotypes.LogFilter) ([]dom
 }
 
 func (s *LogService) SendLog(ctx context.Context, logObj *domain.LogEntry) (int, error) {
-	s.brokerProducer.SendMessage(
-		ctx,
-		[]byte(fmt.Sprintf("service=%s, level=%s, Message=%s", logObj.Service, logObj.Level, logObj.Message)),
-	)
+	err := s.brokerProducer.SendMessage(ctx, []byte(fmt.Sprintf("service=%s, level=%s, Message=%s", logObj.Service, logObj.Level, logObj.Message)))
+	if err != nil {
+		log.Warnf("Failed to send message to Kafka: %v", err)
+	}
 	s.counters.LogsReceived.Inc(logObj.Service, logObj.Level)
 	id, err := s.logRepo.SendLog(ctx, logObj)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	dummybroker "github.com/Egor213/LogiTrack/internal/broker/dummy"
 	"github.com/Egor213/LogiTrack/internal/domain"
 	"github.com/Egor213/LogiTrack/internal/metrics"
 	repository_mock "github.com/Egor213/LogiTrack/internal/mocks/repository"
@@ -89,7 +90,8 @@ func TestLogService_GetStats(t *testing.T) {
 			tc.mockBehavior(mockRepo, tc.args)
 
 			cnt := metrics.NewTestCounters()
-			s := service.NewLogService(mockRepo, cnt)
+			broker := dummybroker.NewProducer()
+			s := service.NewLogService(mockRepo, cnt, broker)
 
 			got, err := s.GetStats(tc.args.ctx, tc.args.service, tc.args.from, tc.args.to)
 
@@ -111,7 +113,8 @@ func TestLogService_SendLog(t *testing.T) {
 	mockRepo := repository_mock.NewMockLog(ctrl)
 	mockCounters := metrics.NewTestCounters()
 
-	svc := service.NewLogService(mockRepo, mockCounters)
+	broker := dummybroker.NewProducer()
+	svc := service.NewLogService(mockRepo, mockCounters, broker)
 
 	ctx := context.Background()
 	logEntry := &domain.LogEntry{

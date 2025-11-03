@@ -54,6 +54,7 @@ func Run() {
 		Brokers: []string{"localhost:9092"},
 		Topic:   "notifications",
 	})
+	// brokerProducer := dummybroker.NewProducer()
 
 	// Services
 	metricsCnt := metrics.New()
